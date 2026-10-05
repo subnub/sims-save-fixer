@@ -4,9 +4,12 @@
 
 Use this if your save:
 
-- shows a warning like **"a career is missing or broken"** when it loads
+- shows an error or warning when it loads (for example **"a career is missing or broken"**)
+- won't load, or loads into a broken household or lot
 - suddenly runs **very slowly**
 - keeps filling `lastException.txt` with errors
+
+It was first built to fix a broken-career save, but the approach works for any save problem: Claude reads *your* error logs, works out what's actually wrong, and makes a targeted fix.
 
 ---
 
@@ -50,8 +53,8 @@ Make sure the game is fully closed so the save file isn't locked or overwritten.
 Run `claude`, log in when asked, then copy the prompt below. Replace the parts in `<angle brackets>` with your own paths and slot name:
 
 ```text
-I have a corrupt Sims 4 save. When it loads it says a career is missing/broken,
-and the game runs very slowly.
+I have a corrupt Sims 4 save. <Describe what happens, e.g. "when it loads it says
+a career is missing/broken and the game runs very slowly".>
 
 - Save file:      <C:\Users\YOU\Documents\Electronic Arts\The Sims 4\saves\Slot_xxxxxxxx.save>
 - Error logs:     <C:\Users\YOU\Documents\Electronic Arts\The Sims 4>  (lastException*.txt)
@@ -62,9 +65,10 @@ and the game runs very slowly.
 Please:
 1. BACK UP the save before touching anything.
 2. Read the newest exception logs to find the exact error and code path.
-3. Use the helper scripts to check every career/track in the save against what is
-   actually installed: the base game, packs AND my Mods folder. Don't assume a
-   mod career is missing just because it has a large ID.
+3. Use the helper scripts (and write new ones if needed) to check whatever the
+   error points at (sims, households, lots, careers, objects, etc.) against what
+   is actually installed: the base game, packs AND my Mods folder. Don't assume
+   something is missing without checking.
 4. Look at the game's own code/tuning if needed to understand why it crashes.
 5. Make the smallest targeted fix possible, write it to a NEW file, verify it with
    dbpf_check.py, and only then install it in place of the old save.
@@ -91,7 +95,7 @@ how to fix it?
 
 ## 📚 What's in this repo
 
-All scripts are plain Python 3 with no extra packages. Claude uses them as a starting point and adapts them to your save. Every repair script writes a **new** file and never changes your original.
+All scripts are plain Python 3 with no extra packages. Claude uses them as a starting point, adapts them to your save, and writes new ones when your problem needs something different. The container, cross-reference and sim-removal scripts work on any save; the career scripts cover the most common kind of breakage. Every repair script writes a **new** file and never changes your original.
 
 | Script | Purpose |
 |---|---|
@@ -114,6 +118,7 @@ All scripts are plain Python 3 with no extra packages. Claude uses them as a sta
 
 | Error / symptom | Likely cause | Fix |
 |---|---|---|
+| Any other error in `lastException.txt` | Varies | Paste the prompt above with your symptoms; Claude will trace it from the log |
 | Career warning; `career_base.py` errors mentioning `degree_tracker`, `get_course_data` or `get_university` | A sim holds university course careers without a valid enrollment | Paste the prompt above; Claude will use `uni_report.py` and `fix_save.py` |
 | Career warning; careers show as `NOT FOUND` | A career mod was removed or updated | Reinstall the mod, or let Claude remove only the truly missing careers |
 | `Attempt to transfer into inventory type with multiple nonshared inventories: InventoryType.MAILBOX` | Two or more mailboxes on one lot (custom-content postboxes count) | In Build/Buy mode, search "mail" and delete all but one |
